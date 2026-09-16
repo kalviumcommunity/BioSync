@@ -42,6 +42,16 @@ This repository contains the isolated foundation for an internal retrieval-augme
 
 The check loads local configuration without making an API request. A fresh setup was verified successfully after installing `requirements.txt`; with the blank example values it reports only that optional API configuration still needs to be filled in.
 
+## First chat completion
+
+After filling in `API_BASE_URL`, `OPENAI_API_KEY`, and `CHAT_MODEL` in `.env`, run:
+
+```powershell
+python -m src.chat_completion
+```
+
+The script sends one system message and one user message, prints `choices[0].message.content`, and logs the request messages, response payload, and token usage when available. Logs are written to `outputs/chat_exchange.log`, which is ignored by Git. Authentication failures (401), rate limits (429), connection errors, and other API errors are reported without a raw stack trace. See `docs/sample-chat-output.md` for redacted sample output.
+
 ## Reproducing the setup
 
 Clone the repository, use the Python version above, follow the five setup steps, and keep real credentials only in the local `.env` file.
