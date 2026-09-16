@@ -1,0 +1,23 @@
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Local knowledge-base data
+data/*
+!data/.gitkeep
+
+# Generated outputs
+outputs/*
+!outputs/.gitkeep
+
+# Editor and OS files
+.vscode/
+.DS_Store
+Thumbs.db
