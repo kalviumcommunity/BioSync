@@ -52,6 +52,16 @@ python -m src.chat_completion
 
 The script sends one system message and one user message, prints `choices[0].message.content`, and logs the request messages, response payload, and token usage when available. Logs are written to `outputs/chat_exchange.log`, which is ignored by Git. Authentication failures (401), rate limits (429), connection errors, and other API errors are reported without a raw stack trace. See `docs/sample-chat-output.md` for redacted sample output.
 
+## Parameter experiments
+
+Run the same grounded prompt with different generation controls:
+
+```powershell
+python -m src.parameter_experiments
+```
+
+The command runs temperature, `max_tokens`, and `top_p` comparisons and writes the captured responses and token usage to `outputs/parameter-experiments.md` and `outputs/parameter-experiments.json`. Recommended settings for factual answers are documented in `docs/grounded-generation-settings.md`.
+
 ## Reproducing the setup
 
 Clone the repository, use the Python version above, follow the five setup steps, and keep real credentials only in the local `.env` file.
