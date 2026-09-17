@@ -62,6 +62,16 @@ python -m src.parameter_experiments
 
 The command runs temperature, `max_tokens`, and `top_p` comparisons and writes the captured responses and token usage to `outputs/parameter-experiments.md` and `outputs/parameter-experiments.json`. Recommended settings for factual answers are documented in `docs/grounded-generation-settings.md`.
 
+## Structured JSON responses
+
+Run the structured-output client after filling in the API values in `.env`:
+
+```powershell
+python -m src.structured_output
+```
+
+The client requests JSON mode with `response_format`, parses the response into an `answer`/`source` dict, validates both required non-empty string fields, and reports malformed or incomplete output without an unhandled JSON exception. It retries without JSON mode when an older compatible endpoint rejects that option. Offline behavior is covered by `python -m unittest src.test_structured_output -v`; sample parsed results are in `outputs/structured-output-samples.md` and `outputs/structured-output-results.json`.
+
 ## Reproducing the setup
 
 Clone the repository, use the Python version above, follow the five setup steps, and keep real credentials only in the local `.env` file.

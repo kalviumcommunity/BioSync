@@ -18,6 +18,8 @@ outputs/*
 !outputs/.gitkeep
 !outputs/parameter-experiments.md
 !outputs/parameter-experiments.json
+!outputs/structured-output-results.json
+!outputs/structured-output-samples.md
 
 # Editor and OS files
 .vscode/
