@@ -1,5 +1,33 @@
-node_modules
-dist
-.vite
-.DS_Store
+# Node build artifacts
+node_modules/
+dist/
+.vite/
 npm-debug.log*
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Local knowledge-base data
+data/*
+!data/.gitkeep
+
+# Generated outputs
+outputs/*
+!outputs/.gitkeep
+!outputs/parameter-experiments.md
+!outputs/parameter-experiments.json
+!outputs/structured-output-results.json
+!outputs/structured-output-samples.md
+
+# Editor and OS files
+.vscode/
+.DS_Store
+Thumbs.db
