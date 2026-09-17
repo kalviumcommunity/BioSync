@@ -1,0 +1,7 @@
+{
+  "status": "not_run",
+  "reason": "Local .env is missing API_BASE_URL, OPENAI_API_KEY, and CHAT_MODEL.",
+  "runner": "src/parameter_experiments.py",
+  "run_command": "python -m src.parameter_experiments",
+  "note": "Run with local API configuration to replace this metadata with captured responses and token usage."
+}

@@ -16,6 +16,8 @@ data/*
 # Generated outputs
 outputs/*
 !outputs/.gitkeep
+!outputs/parameter-experiments.md
+!outputs/parameter-experiments.json
 
 # Editor and OS files
 .vscode/
