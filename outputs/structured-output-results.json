@@ -1,0 +1,33 @@
+[
+  {
+    "case": "valid JSON",
+    "raw": "{\"answer\":\"30 days\",\"source\":\"Acme support policy\"}",
+    "parsed": {
+      "answer": "30 days",
+      "source": "Acme support policy"
+    },
+    "error": null
+  },
+  {
+    "case": "malformed wrapper recovered",
+    "raw": "Here is the result:\n```json\n{\"answer\":\"30 days\",\"source\":\"Acme support policy\"}\n```",
+    "parsed": {
+      "answer": "30 days",
+      "source": "Acme support policy"
+    },
+    "error": null,
+    "recovery": "Extracted the JSON object from a Markdown fence after strict JSON parsing failed."
+  },
+  {
+    "case": "malformed JSON rejected",
+    "raw": "{\"answer\":\"30 days\",}",
+    "parsed": null,
+    "error": "Invalid JSON: Expecting property name enclosed in double quotes at character 20."
+  },
+  {
+    "case": "missing required field rejected",
+    "raw": "{\"answer\":\"30 days\"}",
+    "parsed": null,
+    "error": "Missing required field(s): source."
+  }
+]
