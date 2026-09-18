@@ -11,7 +11,7 @@ This repository contains the isolated foundation for an internal retrieval-augme
 
 ## Setup
 
-1. Install Python 3.10 or newer.
+1. Install Python 3.10 or latest version.
 2. Create and activate a virtual environment:
 
    ```powershell
