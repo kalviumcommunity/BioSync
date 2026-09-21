@@ -33,6 +33,16 @@ The comparison reports chunk counts, average character sizes, source IDs, and sa
 
 Every chunk now carries the same metadata fields: `source`, `section`, `page`, `position_start`, `position_end`, `chunk_index`, and `strategy`. `trace_chunk()` verifies the recorded span against the cleaned source text, providing a direct citation path. Metadata examples and traceback evidence are in `docs/chunk-metadata-samples.md`.
 
+## Token-aware chunking
+
+Run the tokenizer-backed chunker with `tiktoken`:
+
+```powershell
+python -m src.token_chunking
+```
+
+The default is 128 tokens with a controlled 24-token overlap using the `gpt-4o-mini` tokenizer. The limit is deliberately below a typical chat context window so retrieved chunks leave room for the system prompt, question, and answer. The overlap is about 19% of a chunk: enough to preserve short ideas across boundaries without paying the duplication cost of a much larger overlap. See `docs/token-chunking-sample-output.md` for counts, sample chunks, and the boundary demonstration.
+
 ## Reusable prompt templates
 
 The grounded prompt template lives in `prompts/templates.py`, separate from application logic. Its named `{context}` and `{question}` placeholders are filled at runtime by both `src.chat_completion` and `src.parameter_experiments`, keeping the chat and batch paths consistent. Example filled prompts are in `docs/prompt-template-renders.md`.
