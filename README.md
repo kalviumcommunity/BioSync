@@ -43,6 +43,16 @@ python -m src.token_chunking
 
 The default is 128 tokens with a controlled 24-token overlap using the `gpt-4o-mini` tokenizer. The limit is deliberately below a typical chat context window so retrieved chunks leave room for the system prompt, question, and answer. The overlap is about 19% of a chunk: enough to preserve short ideas across boundaries without paying the duplication cost of a much larger overlap. See `docs/token-chunking-sample-output.md` for counts, sample chunks, and the boundary demonstration.
 
+## Full-corpus ingestion
+
+Run the complete pipeline over every file under `data/`:
+
+```powershell
+python -m src.ingestion_pipeline
+```
+
+The run discovers all files recursively, loads and cleans supported documents, token-chunks every successful document, records unsupported or unreadable files as failures, and asserts `total sources = successfully ingested + failures`. The committed report is `docs/full-ingestion-summary.json` and includes counts, failures, and sample chunks with metadata.
+
 ## Reusable prompt templates
 
 The grounded prompt template lives in `prompts/templates.py`, separate from application logic. Its named `{context}` and `{question}` placeholders are filled at runtime by both `src.chat_completion` and `src.parameter_experiments`, keeping the chat and batch paths consistent. Example filled prompts are in `docs/prompt-template-renders.md`.
