@@ -1,11 +1,25 @@
 """Load supported knowledge-base files into source-tagged plain text."""
 
 from dataclasses import dataclass
+from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
+import re
 from typing import Iterable
+import unicodedata
 
 SUPPORTED_SUFFIXES = {".html", ".htm", ".md", ".txt", ".pdf"}
+PAGE_MARKER = re.compile(r"page\s+\d+\s+of\s+\d+", re.IGNORECASE)
+MOJIBAKE_REPLACEMENTS = {
+    "â€™": "'",
+    "â€TM": "'",
+    "â€œ": '"',
+    "â€�": '"',
+    "â€“": "-",
+    "â€”": "-",
+    "Â": "",
+    "�": "",
+}
 
 
 @dataclass(frozen=True)
@@ -57,14 +71,17 @@ def load_document(path: Path) -> LoadedDocument | None:
         print(f"Skipped {source}: could not read file ({error}).")
         return None
 
-    text = _normalize_text(text)
+    raw_sample = _sample(text)
+    text = clean_text(text)
     if not text:
         print(f"Skipped {source}: no readable text found.")
         return None
 
     document = LoadedDocument(source=source, text=text)
-    sample = " ".join(document.text.split())[:120]
-    print(f"Loaded {document.source}: {len(document.text)} characters; sample: {sample}")
+    print(
+        f"Loaded {document.source}: {len(document.text)} characters; "
+        f"before: {raw_sample}; after: {_sample(document.text)}"
+    )
     return document
 
 
@@ -93,8 +110,27 @@ def _extract_text(path: Path, suffix: str) -> str:
     raise ValueError(f"unsupported format {suffix}")
 
 
-def _normalize_text(text: str) -> str:
-    return "\n".join(line.strip() for line in text.replace("\r\n", "\n").split("\n") if line.strip()).strip()
+def clean_text(text: str) -> str:
+    """Make extracted text consistent and remove repeated document boilerplate."""
+    normalized = unicodedata.normalize("NFKC", text).replace("\r\n", "\n").replace("\r", "\n")
+    for artifact, replacement in MOJIBAKE_REPLACEMENTS.items():
+        normalized = normalized.replace(artifact, replacement)
+
+    lines = [re.sub(r"[ \t]+", " ", line).strip() for line in normalized.split("\n")]
+    line_counts = Counter(line.casefold() for line in lines if line)
+    cleaned_lines = []
+    for line in lines:
+        if not line or PAGE_MARKER.fullmatch(line):
+            continue
+        if line_counts[line.casefold()] > 1 and len(line) <= 120:
+            continue
+        cleaned_lines.append(line)
+    return "\n\n".join(cleaned_lines).strip()
+
+
+def _sample(text: str, limit: int = 120) -> str:
+    """Make CLI samples compact without changing the document content."""
+    return " ".join(text.split())[:limit]
 
 
 def main() -> int:

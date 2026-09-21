@@ -5,10 +5,38 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from src.document_loader import load_corpus, load_document
+from src.document_loader import clean_text, load_corpus, load_document
 
 
 class DocumentLoaderTests(unittest.TestCase):
+    def test_clean_text_removes_boilerplate_and_normalizes_artifacts(self) -> None:
+        raw_text = (
+            "Acme Support | Home | Contact\n"
+            "Page 1 of 2\n"
+            "Refunds  â€™  are available.\n"
+            "Page 2 of 2\n"
+            "Acme Support | Home | Contact\n"
+        )
+
+        cleaned = clean_text(raw_text)
+
+        self.assertEqual(cleaned, "Refunds ' are available.")
+        self.assertNotIn("Page", cleaned)
+        self.assertNotIn("Acme Support", cleaned)
+
+    def test_cleaning_is_applied_to_every_loaded_document(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            directory = Path(temporary_directory)
+            for name in ("one.txt", "two.md"):
+                (directory / name).write_text(
+                    "Repeated Header\nPage 1 of 1\nUseful content\nRepeated Header\n",
+                    encoding="utf-8",
+                )
+
+            documents = load_corpus(sorted(directory.iterdir()))
+
+        self.assertEqual([document.text for document in documents], ["Useful content", "Useful content"])
+
     def test_loads_text_markdown_and_html_with_source_names(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             directory = Path(temporary_directory)
