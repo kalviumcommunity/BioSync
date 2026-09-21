@@ -9,6 +9,10 @@ This repository contains the isolated foundation for an internal retrieval-augme
 - `prompts/`: versioned prompt templates.
 - `outputs/`: generated local results. Contents are ignored by Git.
 
+## Reusable prompt templates
+
+The grounded prompt template lives in `prompts/templates.py`, separate from application logic. Its named `{context}` and `{question}` placeholders are filled at runtime by both `src.chat_completion` and `src.parameter_experiments`, keeping the chat and batch paths consistent. Example filled prompts are in `docs/prompt-template-renders.md`.
+
 ## Setup
 
 1. Install Python 3.10 or latest version.
