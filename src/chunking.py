@@ -11,11 +11,10 @@ from src.document_loader import LoadedDocument, load_corpus
 
 @dataclass(frozen=True)
 class Chunk:
-    """A retrieval unit with enough identity for later citations."""
+    """A retrieval unit with text and JSON-friendly citation metadata."""
 
-    source: str
-    index: int
     text: str
+    metadata: dict[str, str | int | None]
 
 
 @dataclass(frozen=True)
@@ -29,8 +28,17 @@ class ChunkStats:
 
 def paragraph_chunks(document: LoadedDocument) -> list[Chunk]:
     """Split on blank lines so each chunk keeps a complete paragraph."""
-    paragraphs = [paragraph.strip() for paragraph in re.split(r"\n\s*\n", document.text) if paragraph.strip()]
-    return [Chunk(source=document.source, index=index, text=text) for index, text in enumerate(paragraphs, start=1)]
+    chunks = []
+    cursor = 0
+    for index, match in enumerate(re.finditer(r"[^\n](?:.*?[^\n])?(?=\n\s*\n|$)", document.text, re.DOTALL), start=1):
+        text = match.group(0).strip()
+        if not text:
+            continue
+        start = document.text.find(text, cursor, match.end())
+        end = start + len(text)
+        chunks.append(_make_chunk(document, text, index, start, end, "paragraph", f"paragraph-{index}"))
+        cursor = end
+    return chunks
 
 
 def fixed_size_chunks(document: LoadedDocument, size: int = 80, overlap: int = 20) -> list[Chunk]:
@@ -42,11 +50,51 @@ def fixed_size_chunks(document: LoadedDocument, size: int = 80, overlap: int = 2
     start = 0
     while start < len(document.text):
         end = min(start + size, len(document.text))
-        chunks.append(Chunk(source=document.source, index=len(chunks) + 1, text=document.text[start:end].strip()))
+        raw_text = document.text[start:end]
+        text = raw_text.strip()
+        text_start = start + len(raw_text) - len(raw_text.lstrip())
+        text_end = text_start + len(text)
+        chunks.append(_make_chunk(document, text, len(chunks) + 1, text_start, text_end, "fixed", "fixed-window"))
         if end == len(document.text):
             break
         start = end - overlap
     return chunks
+
+
+def _make_chunk(
+    document: LoadedDocument,
+    text: str,
+    index: int,
+    start: int,
+    end: int,
+    strategy: str,
+    section: str,
+) -> Chunk:
+    return Chunk(
+        text=text,
+        metadata={
+            "source": document.source,
+            "section": section,
+            "page": None,
+            "position_start": start,
+            "position_end": end,
+            "chunk_index": index,
+            "strategy": strategy,
+        },
+    )
+
+
+def trace_chunk(chunk: Chunk, document: LoadedDocument) -> str:
+    """Trace a chunk back to its exact span in the cleaned source document."""
+    metadata = chunk.metadata
+    if metadata["source"] != document.source:
+        raise ValueError("Chunk source does not match the supplied document")
+    start = int(metadata["position_start"])
+    end = int(metadata["position_end"])
+    source_excerpt = document.text[start:end].strip()
+    if source_excerpt != chunk.text:
+        raise ValueError("Chunk text does not match its recorded source span")
+    return f"{metadata['source']} [{start}:{end}] -> {source_excerpt}"
 
 
 def summarize(strategy: str, chunks: list[Chunk]) -> ChunkStats:
@@ -85,7 +133,16 @@ def format_comparison(document: LoadedDocument) -> str:
             ]
         )
         for chunk in chunks[:3]:
-            lines.extend([f"### Chunk {chunk.index} ({len(chunk.text)} characters)", "", f"> {chunk.text}", ""])
+            lines.extend(
+                [
+                    f"### Chunk {chunk.metadata['chunk_index']} ({len(chunk.text)} characters)",
+                    "",
+                    f"Metadata: `{chunk.metadata}`",
+                    "",
+                    f"> {chunk.text}",
+                    "",
+                ]
+            )
     lines.extend(
         [
             "## Choice",
