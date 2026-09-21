@@ -1,0 +1,67 @@
+{
+  "total_source_documents": 4,
+  "successfully_ingested_documents": 3,
+  "total_chunks_created": 3,
+  "failures": [
+    {
+      "source": ".gitkeep",
+      "reason": "unsupported format"
+    }
+  ],
+  "sample_chunks": [
+    {
+      "source": "faq.html",
+      "text": "Customers can ask for a refund within thirty days.",
+      "metadata": {
+        "source": "faq.html",
+        "section": "token-window",
+        "page": null,
+        "position_start": 0,
+        "position_end": 50,
+        "chunk_index": 1,
+        "strategy": "token",
+        "token_start": 0,
+        "token_end": 10,
+        "token_count": 10,
+        "overlap_tokens": 24,
+        "model": "gpt-4o-mini"
+      }
+    },
+    {
+      "source": "onboarding.md",
+      "text": "# Support onboarding\n\nUse the account email to locate a customer record.\n\nEscalate payment disputes to the billing team.",
+      "metadata": {
+        "source": "onboarding.md",
+        "section": "token-window",
+        "page": null,
+        "position_start": 0,
+        "position_end": 120,
+        "chunk_index": 1,
+        "strategy": "token",
+        "token_start": 0,
+        "token_end": 24,
+        "token_count": 24,
+        "overlap_tokens": 24,
+        "model": "gpt-4o-mini"
+      }
+    },
+    {
+      "source": "policy.txt",
+      "text": "Acme support policy\n\nAnnual plans can be refunded within 30 days. Refunds ' return to the original payment method.",
+      "metadata": {
+        "source": "policy.txt",
+        "section": "token-window",
+        "page": null,
+        "position_start": 0,
+        "position_end": 114,
+        "chunk_index": 1,
+        "strategy": "token",
+        "token_start": 0,
+        "token_end": 25,
+        "token_count": 25,
+        "overlap_tokens": 24,
+        "model": "gpt-4o-mini"
+      }
+    }
+  ]
+}
