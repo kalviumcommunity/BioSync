@@ -9,6 +9,16 @@ This repository contains the isolated foundation for an internal retrieval-augme
 - `prompts/`: versioned prompt templates.
 - `outputs/`: generated local results. Contents are ignored by Git.
 
+## Document intake
+
+Load the tracked sample corpus into source-tagged plain text:
+
+```powershell
+python -m src.document_loader
+```
+
+The loader supports TXT, Markdown, HTML, and PDF files. Each successful document prints its source filename, extracted character count, and a short sample. Missing, unreadable, empty, and unsupported files are reported and skipped so one bad input does not stop the corpus run. PDF extraction uses `pypdf`; other formats use the Python standard library. The sample corpus is in `data/sample-corpus/`.
+
 ## Reusable prompt templates
 
 The grounded prompt template lives in `prompts/templates.py`, separate from application logic. Its named `{context}` and `{question}` placeholders are filled at runtime by both `src.chat_completion` and `src.parameter_experiments`, keeping the chat and batch paths consistent. Example filled prompts are in `docs/prompt-template-renders.md`.
