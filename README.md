@@ -21,6 +21,16 @@ The loader supports TXT, Markdown, HTML, and PDF files. Each successful document
 
 Every loaded document passes through the same `clean_text()` function. It applies Unicode NFKC normalization, repairs common encoding artifacts, removes page markers and repeated short header/footer lines, and collapses whitespace. The CLI prints before/after samples; committed evidence is in `docs/cleaning-sample-output.md`.
 
+## Chunking comparison
+
+Compare paragraph chunks with fixed 80-character chunks and 20-character overlap on the cleaned sample corpus:
+
+```powershell
+python -m src.chunking
+```
+
+The comparison reports chunk counts, average character sizes, source IDs, and sample boundaries. Paragraph chunking is selected for this corpus because policy, onboarding, and FAQ content is naturally organized into short semantic sections. See `docs/chunking-comparison.md` for the sample output and rationale.
+
 ## Reusable prompt templates
 
 The grounded prompt template lives in `prompts/templates.py`, separate from application logic. Its named `{context}` and `{question}` placeholders are filled at runtime by both `src.chat_completion` and `src.parameter_experiments`, keeping the chat and batch paths consistent. Example filled prompts are in `docs/prompt-template-renders.md`.
