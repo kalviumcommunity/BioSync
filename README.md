@@ -31,6 +31,8 @@ python -m src.chunking
 
 The comparison reports chunk counts, average character sizes, source IDs, and sample boundaries. Paragraph chunking is selected for this corpus because policy, onboarding, and FAQ content is naturally organized into short semantic sections. See `docs/chunking-comparison.md` for the sample output and rationale.
 
+Every chunk now carries the same metadata fields: `source`, `section`, `page`, `position_start`, `position_end`, `chunk_index`, and `strategy`. `trace_chunk()` verifies the recorded span against the cleaned source text, providing a direct citation path. Metadata examples and traceback evidence are in `docs/chunk-metadata-samples.md`.
+
 ## Reusable prompt templates
 
 The grounded prompt template lives in `prompts/templates.py`, separate from application logic. Its named `{context}` and `{question}` placeholders are filled at runtime by both `src.chat_completion` and `src.parameter_experiments`, keeping the chat and batch paths consistent. Example filled prompts are in `docs/prompt-template-renders.md`.
