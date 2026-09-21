@@ -19,6 +19,8 @@ python -m src.document_loader
 
 The loader supports TXT, Markdown, HTML, and PDF files. Each successful document prints its source filename, extracted character count, and a short sample. Missing, unreadable, empty, and unsupported files are reported and skipped so one bad input does not stop the corpus run. PDF extraction uses `pypdf`; other formats use the Python standard library. The sample corpus is in `data/sample-corpus/`.
 
+Every loaded document passes through the same `clean_text()` function. It applies Unicode NFKC normalization, repairs common encoding artifacts, removes page markers and repeated short header/footer lines, and collapses whitespace. The CLI prints before/after samples; committed evidence is in `docs/cleaning-sample-output.md`.
+
 ## Reusable prompt templates
 
 The grounded prompt template lives in `prompts/templates.py`, separate from application logic. Its named `{context}` and `{question}` placeholders are filled at runtime by both `src.chat_completion` and `src.parameter_experiments`, keeping the chat and batch paths consistent. Example filled prompts are in `docs/prompt-template-renders.md`.
