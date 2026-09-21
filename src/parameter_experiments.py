@@ -6,29 +6,17 @@ from pathlib import Path
 from openai import OpenAI
 
 from src.chat_completion import load_config
+from prompts.templates import render_grounded_messages
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 REPORT_PATH = PROJECT_ROOT / "outputs" / "parameter-experiments.md"
 JSON_PATH = PROJECT_ROOT / "outputs" / "parameter-experiments.json"
-MESSAGES = [
-    {
-        "role": "system",
-        "content": (
-            "Answer only from the supplied context. If the context does not contain "
-            "the answer, say that the evidence is insufficient. Be concise."
-        ),
-    },
-    {
-        "role": "user",
-        "content": (
-            "Context: The Acme support policy gives customers a 30-day window to "
-            "request a refund for an annual plan. Refunds are returned to the "
-            "original payment method. Question: What is the refund window and where "
-            "is the money returned?"
-        ),
-    },
-]
+CONTEXT = (
+    "The Acme support policy gives customers a 30-day window to request a refund "
+    "for an annual plan. Refunds are returned to the original payment method."
+)
+QUESTION = "What is the refund window and where is the money returned?"
 
 EXPERIMENTS = (
     ("temperature_0", {"temperature": 0.0}),
@@ -42,12 +30,13 @@ EXPERIMENTS = (
 def run_experiments() -> list[dict[str, object]]:
     base_url, api_key, model = load_config()
     client = OpenAI(base_url=base_url, api_key=api_key)
+    messages = render_grounded_messages(context=CONTEXT, question=QUESTION)
     results = []
 
     for name, parameters in EXPERIMENTS:
         response = client.chat.completions.create(
             model=model,
-            messages=MESSAGES,
+            messages=messages,
             **parameters,
         )
         usage = response.usage.model_dump() if response.usage else {}

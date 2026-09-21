@@ -8,10 +8,17 @@ from pathlib import Path
 from dotenv import load_dotenv
 from openai import APIConnectionError, APIStatusError, AuthenticationError, OpenAI, RateLimitError
 
+from prompts.templates import render_grounded_messages
+
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 LOG_PATH = PROJECT_ROOT / "outputs" / "chat_exchange.log"
 REQUIRED_KEYS = ("API_BASE_URL", "OPENAI_API_KEY", "CHAT_MODEL")
+DEFAULT_CONTEXT = (
+    "The Acme support policy gives customers a 30-day window to request a refund "
+    "for an annual plan. Refunds are returned to the original payment method."
+)
+DEFAULT_QUESTION = "What is the refund window and where is the money returned?"
 
 
 def configure_logging() -> None:
@@ -36,12 +43,9 @@ def load_config() -> tuple[str, str, str]:
     return os.environ["API_BASE_URL"], os.environ["OPENAI_API_KEY"], os.environ["CHAT_MODEL"]
 
 
-def request_chat_completion() -> str:
+def request_chat_completion(context: str = DEFAULT_CONTEXT, question: str = DEFAULT_QUESTION) -> str:
     base_url, api_key, model = load_config()
-    messages = [
-        {"role": "system", "content": "You are a concise and helpful workplace assistant."},
-        {"role": "user", "content": "In one sentence, explain what a RAG assistant does."},
-    ]
+    messages = render_grounded_messages(context=context, question=question)
     logging.info("request messages=%s", json.dumps(messages))
 
     client = OpenAI(base_url=base_url, api_key=api_key)
