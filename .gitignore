@@ -28,6 +28,7 @@ outputs/*
 !outputs/parameter-experiments.json
 !outputs/structured-output-results.json
 !outputs/structured-output-samples.md
+!outputs/embedding-demo.md
 
 # Editor and OS files
 .vscode/
