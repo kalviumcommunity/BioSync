@@ -120,6 +120,16 @@ python -m src.structured_output
 
 The client requests JSON mode with `response_format`, parses the response into an `answer`/`source` dict, validates both required non-empty string fields, and reports malformed or incomplete output without an unhandled JSON exception. It retries without JSON mode when an older compatible endpoint rejects that option. Offline behavior is covered by `python -m unittest src.test_structured_output -v`; sample parsed results are in `outputs/structured-output-samples.md` and `outputs/structured-output-results.json`.
 
+## Embedding demonstration
+
+Generate embeddings for related and unrelated texts, print their vector dimension, and compare cosine similarity:
+
+```powershell
+python -m src.embedding_demo
+```
+
+The command uses `EMBEDDING_MODEL` from `.env` through the configured OpenAI-compatible API. Use `python -m src.embedding_demo --offline-fixture` to reproduce the committed shape and comparison evidence without making an API request. The sample output and explanation are in `outputs/embedding-demo.md`.
+
 ## Reproducing the setup
 
 Clone the repository, use the Python version above, follow the five setup steps, and keep real credentials only in the local `.env` file.
