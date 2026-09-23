@@ -7,8 +7,12 @@ from src.embedding_demo import (
     OFFLINE_VECTORS,
     SAMPLE_TEXTS,
     cosine_similarity,
+    embed_chunks,
     generate_embeddings,
     render_report,
+    render_storage_report,
+    SAMPLE_CHUNKS,
+    stored_embeddings_from_vectors,
 )
 
 
@@ -39,6 +43,32 @@ class EmbeddingDemoTests(unittest.TestCase):
         self.assertIn("All vectors same length: True", report)
         self.assertIn("Similar pair scores higher: True", report)
         self.assertIn("numeric representation", report)
+
+    def test_api_embeddings_are_stored_with_text_and_metadata(self) -> None:
+        response = SimpleNamespace(
+            data=[
+                SimpleNamespace(index=1, embedding=[0.2, 0.3]),
+                SimpleNamespace(index=0, embedding=[0.1, 0.4]),
+                SimpleNamespace(index=2, embedding=[0.5, 0.6]),
+            ]
+        )
+        client = SimpleNamespace(embeddings=SimpleNamespace(create=lambda **_: response))
+
+        records = embed_chunks(SAMPLE_CHUNKS, client, "test-model")
+
+        self.assertEqual(records[0].text, SAMPLE_CHUNKS[0]["text"])
+        self.assertEqual(records[0].metadata["source"], "policy.txt")
+        self.assertEqual(records[1].vector, [0.2, 0.3])
+
+    def test_storage_report_confirms_chunk_count_and_vector_samples(self) -> None:
+        records = stored_embeddings_from_vectors(SAMPLE_CHUNKS, OFFLINE_VECTORS)
+
+        report = render_storage_report(records, "test fixture")
+
+        self.assertIn("Chunks embedded: 3", report)
+        self.assertIn("Vector length: 8", report)
+        self.assertIn("Metadata: `{'source': 'policy.txt'", report)
+        self.assertIn("Vector sample: [0.9100, 0.1200", report)
 
 
 if __name__ == "__main__":

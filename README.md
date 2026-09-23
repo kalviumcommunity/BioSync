@@ -128,7 +128,7 @@ Generate embeddings for related and unrelated texts, print their vector dimensio
 python -m src.embedding_demo
 ```
 
-The command uses `EMBEDDING_MODEL` from `.env` through the configured OpenAI-compatible API. Use `python -m src.embedding_demo --offline-fixture` to reproduce the committed shape and comparison evidence without making an API request. The sample output and explanation are in `outputs/embedding-demo.md`.
+The command uses `API_BASE_URL`, `OPENAI_API_KEY`, and `EMBEDDING_MODEL` from `.env` through the configured OpenAI-compatible API. It stores each returned vector with its source text and retrieval metadata. Use `python -m src.embedding_demo --offline-fixture` to reproduce the committed sample corpus output without making an API request. The sample output is in `outputs/embedding-demo.md`.
 
 ## Reproducing the setup
 

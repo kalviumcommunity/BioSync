@@ -3,6 +3,7 @@
 import argparse
 import math
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -17,6 +18,20 @@ SAMPLE_TEXTS = (
     "customers can request a refund for an annual plan within 30 days",
     "the office cafeteria serves soup on Thursdays",
 )
+SAMPLE_CHUNKS = (
+    {
+        "text": SAMPLE_TEXTS[0],
+        "metadata": {"source": "policy.txt", "section": "refunds", "chunk_index": 1, "page": 1},
+    },
+    {
+        "text": SAMPLE_TEXTS[1],
+        "metadata": {"source": "faq.html", "section": "refunds", "chunk_index": 2, "page": None},
+    },
+    {
+        "text": SAMPLE_TEXTS[2],
+        "metadata": {"source": "onboarding.md", "section": "facilities", "chunk_index": 1, "page": None},
+    },
+)
 
 # Small, deterministic vectors let the report and tests run without an API key.
 OFFLINE_VECTORS = (
@@ -24,6 +39,15 @@ OFFLINE_VECTORS = (
     (0.88, 0.16, 0.27, 0.10, 0.04, 0.13, 0.17, 0.09),
     (0.05, 0.82, 0.09, 0.71, 0.18, 0.03, 0.12, 0.66),
 )
+
+
+@dataclass(frozen=True)
+class StoredEmbedding:
+    """An embedding stored with the source needed to cite it during retrieval."""
+
+    text: str
+    metadata: dict[str, str | int | None]
+    vector: list[float]
 
 
 def cosine_similarity(first: Sequence[float], second: Sequence[float]) -> float:
@@ -59,6 +83,30 @@ def generate_embeddings(texts: Sequence[str], client: Any, model: str) -> list[l
     if dimension == 0 or any(len(vector) != dimension for vector in vectors):
         raise ValueError("embedding provider returned inconsistent vector dimensions")
     return vectors
+
+
+def embed_chunks(
+    chunks: Sequence[dict[str, Any]], client: Any, model: str
+) -> list[StoredEmbedding]:
+    """Embed prepared chunks and preserve each chunk's text and metadata."""
+    texts = [chunk["text"] for chunk in chunks]
+    vectors = generate_embeddings(texts, client, model)
+    return [
+        StoredEmbedding(text=chunk["text"], metadata=dict(chunk["metadata"]), vector=vector)
+        for chunk, vector in zip(chunks, vectors)
+    ]
+
+
+def stored_embeddings_from_vectors(
+    chunks: Sequence[dict[str, Any]], vectors: Sequence[Sequence[float]]
+) -> list[StoredEmbedding]:
+    """Build storage records for deterministic offline demonstration output."""
+    if len(chunks) != len(vectors):
+        raise ValueError("the number of chunks must match the number of vectors")
+    return [
+        StoredEmbedding(text=chunk["text"], metadata=dict(chunk["metadata"]), vector=list(vector))
+        for chunk, vector in zip(chunks, vectors)
+    ]
 
 
 def render_report(texts: Sequence[str], vectors: Sequence[Sequence[float]], source: str) -> str:
@@ -101,6 +149,46 @@ def render_report(texts: Sequence[str], vectors: Sequence[Sequence[float]], sour
     return "\n".join(lines) + "\n"
 
 
+def render_storage_report(records: Sequence[StoredEmbedding], source: str) -> str:
+    """Render stored chunk text, metadata, vector length, and sample values."""
+    if not records:
+        raise ValueError("at least one stored embedding is required")
+    dimensions = {len(record.vector) for record in records}
+    if len(dimensions) != 1 or not dimensions:
+        raise ValueError("all stored vectors must have the same dimension")
+    lines = [
+        "# Stored Chunk Embeddings",
+        "",
+        f"Source: {source}",
+        f"Chunks embedded: {len(records)}",
+        f"Vector length: {len(records[0].vector)}",
+        f"Every stored vector has the expected length: {len(dimensions) == 1}",
+        "",
+        "## Stored records",
+        "",
+    ]
+    for index, record in enumerate(records, start=1):
+        lines.extend(
+            [
+                f"### Record {index}",
+                "",
+                f"Text: {record.text}",
+                f"Metadata: `{record.metadata}`",
+                f"Vector length: {len(record.vector)}",
+                f"Vector sample: [{', '.join(f'{value:.4f}' for value in record.vector[:8])}, ...]",
+                "",
+            ]
+        )
+    lines.extend(
+        [
+            "## Retrieval note",
+            "",
+            "Each vector remains attached to its original chunk text and metadata, so a similarity search can return the matching passage together with its source document, section, and chunk index.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
 def main() -> int:
     """Run the live embedding demo, or a reproducible offline fixture."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -109,13 +197,13 @@ def main() -> int:
 
     try:
         if args.offline_fixture:
-            vectors = [list(vector) for vector in OFFLINE_VECTORS]
+            records = stored_embeddings_from_vectors(SAMPLE_CHUNKS, OFFLINE_VECTORS)
             source = "offline fixture (no API request)"
         else:
             base_url, api_key, model = load_config()
-            vectors = generate_embeddings(SAMPLE_TEXTS, OpenAI(base_url=base_url, api_key=api_key), model)
+            records = embed_chunks(SAMPLE_CHUNKS, OpenAI(base_url=base_url, api_key=api_key), model)
             source = f"API model {model}"
-        print(render_report(SAMPLE_TEXTS, vectors, source))
+        print(render_storage_report(records, source))
         return 0
     except (AuthenticationError, RateLimitError, APIConnectionError) as error:
         print(f"Embedding request failed: {error}")
