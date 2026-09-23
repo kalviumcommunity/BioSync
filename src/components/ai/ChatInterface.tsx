@@ -70,13 +70,19 @@ export function ChatInterface() {
         <textarea
           value={input}
           onChange={(event) => setInput(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+              event.preventDefault()
+              onSend()
+            }
+          }}
           rows={2}
           placeholder="Ask a research question..."
           className="min-h-[80px] flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
         />
         <div className="flex items-center gap-2">
           <Button variant="secondary" icon={<Paperclip className="h-4 w-4" />}>Attach</Button>
-          <Button icon={<Send className="h-4 w-4" />} onClick={onSend}>Send</Button>
+          <Button icon={<Send className="h-4 w-4" />} onClick={onSend} disabled={!input.trim()}>Send</Button>
         </div>
       </div>
     </div>
