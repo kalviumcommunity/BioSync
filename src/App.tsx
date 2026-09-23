@@ -116,7 +116,9 @@ function DocumentsPage() {
       <DocumentFilters search={search} onSearch={setSearch} />
       <DocumentTable rows={filteredDocuments.map((doc) => ({ ...doc, createdAt: doc.createdAt, updatedAt: doc.updatedAt, status: doc.status }))} />
       <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-600 shadow-soft">
-        <span>Showing 1-4 of 4 documents</span>
+        <span>
+          Showing {filteredDocuments.length === 0 ? 0 : 1}-{filteredDocuments.length} of {documents.length} documents
+        </span>
         <div className="flex items-center gap-2">
           <button className="rounded-md border border-slate-200 bg-white px-3 py-1.5">Previous</button>
           <button className="rounded-md bg-brand-600 px-3 py-1.5 text-white">1</button>
