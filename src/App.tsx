@@ -22,6 +22,7 @@ import { KnowledgeGraph } from './components/knowledge/KnowledgeGraph'
 import { LiteratureCard } from './components/literature/LiteratureCard'
 import { LiteratureFilters } from './components/literature/LiteratureFilters'
 import { ChatInterface } from './components/ai/ChatInterface'
+import { ResearchBriefPage } from './components/research/ResearchBriefPage'
 import { Badge } from './components/common/Badge'
 import { SearchInput } from './components/common/SearchInput'
 import { activityItems } from './data/activity'
@@ -311,6 +312,7 @@ export default function App() {
         <Route path="/knowledge" element={<KnowledgePage />} />
         <Route path="/literature" element={<LiteraturePage />} />
         <Route path="/ai-assistant" element={<AiAssistantPage />} />
+        <Route path="/brief" element={<ResearchBriefPage />} />
         <Route path="/activity" element={<ActivityPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Routes>
