@@ -24,6 +24,7 @@ const navGroups = [
     title: 'INTELLIGENCE',
     items: [
       { label: 'AI Research Assistant', to: '/ai-assistant', icon: BrainCircuit },
+      { label: 'Research Brief', to: '/brief', icon: NotebookPen },
       { label: 'Activity', to: '/activity', icon: Activity }
     ]
   },
