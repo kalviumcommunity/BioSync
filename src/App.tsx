@@ -23,6 +23,7 @@ import { LiteratureCard } from './components/literature/LiteratureCard'
 import { LiteratureFilters } from './components/literature/LiteratureFilters'
 import { ChatInterface } from './components/ai/ChatInterface'
 import { ResearchBriefPage } from './components/research/ResearchBriefPage'
+import { ExperimentPulsePage } from './components/experiments/ExperimentPulsePage'
 import { Badge } from './components/common/Badge'
 import { SearchInput } from './components/common/SearchInput'
 import { activityItems } from './data/activity'
@@ -309,6 +310,7 @@ export default function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/documents" element={<DocumentsPage />} />
         <Route path="/experiments" element={<ExperimentsPage />} />
+        <Route path="/experiment-pulse" element={<ExperimentPulsePage />} />
         <Route path="/knowledge" element={<KnowledgePage />} />
         <Route path="/literature" element={<LiteraturePage />} />
         <Route path="/ai-assistant" element={<AiAssistantPage />} />

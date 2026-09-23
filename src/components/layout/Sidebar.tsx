@@ -16,6 +16,7 @@ const navGroups = [
     items: [
       { label: 'Documents', to: '/documents', icon: FileText },
       { label: 'Experiments', to: '/experiments', icon: FlaskConical },
+      { label: 'Experiment Pulse', to: '/experiment-pulse', icon: NotebookPen },
       { label: 'Knowledge Graph', to: '/knowledge', icon: Network },
       { label: 'Literature', to: '/literature', icon: BookOpen }
     ]
